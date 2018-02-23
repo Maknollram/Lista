@@ -1,0 +1,86 @@
+<form @submit.prevent="incluirLocal"> 
+	<div class="modal-header">
+		<button type="button" class="close" data-dismiss="modal" aria-label="editLocal"> <span aria-hidden="true">&times;</span> </button>
+		<br />
+	</div>
+	<ol class="breadcrumb">
+		<li><a href="#">Controle de Servio da Subestao K</a></li>
+		<li><a href="#">Locais</a></li>
+		<li class="active">Incluir Local</li>
+	</ol>
+	<div class="modal-body">
+		<div class="row">
+			<div class="col-md-4">
+				<div class="form-group">
+					<div class="input-group">
+						<div class="input-group-addon">Tipo</div>
+						<select  v-model="incluir.tpArea" class="form-control" @change="buscaLocais"  required>
+						    <option v-for="tipoArea in incluir.listaTpArea" :value="tipoArea[0]">{{ tipoArea[1] }}</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="form-group">
+					<div class="input-group">
+						<div class="input-group-addon">Local</div>
+						<select  v-model="incluir.idArea" class="form-control" required >
+							<option v-for="area in incluir.listaArea" :value="area[0]">{{ area[2] }}</option>
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="col-md-2">
+				<div class="form-group">
+					<div class="radio" style="margin-top:-4px;">
+						<div class="input-group">
+							<label>
+								<input type="radio" v-model="incluir.lgHabl" required name="optionsRadios" value="S">
+								Habilitado </label>
+							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+							<label>
+								<input type="radio" v-model="incluir.lgHabl" required name="optionsRadios" value="N">
+								Desabilitado </label>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<hr>						
+		<div class="row">
+	      <div class="col-md-12">
+	        <div class="form-group">
+	          <h6 class="text-uppercase"><strong>Centros de Carga Relacionados</strong><a class="pull-right" data-toggle="modal" >
+	            <button type="button" @click="incluirAdicionarCentroCarga" class="btn btn-primary btn-xs"  title="Adicionar Centro de Carga"> <span class="glyphicon glyphicon-plus"></span> </button>
+	            </a></h6>
+	        </div>
+	      </div>
+	      <!-- <hr> -->
+	      <div class="col-md-12">
+	        <table id="tblIncCentroCarga" class="table">
+	          <thead>
+	            <tr>
+	              <th class="col-md-3 text-center">Identificador</th>
+	              <th class="col-md-1">&nbsp;</th>
+	            </tr>
+	          </thead>
+	          <tbody>
+	 			<tr v-for="(cg, index) in incluir.listCentroCarga" :key="cg.id">
+	              <td class="text-center"> <select  v-model="cg.cdCentCrga" class="form-control" required >
+												<option v-for="centroCarga in incluir.listCentroCargaBancoDados" :disabled="incluir.listCentroCarga.filter(lcc => lcc.cdCentCrga === centroCarga[0]).length > 0" :value="centroCarga[0]">{{ centroCarga[1] }}</option>
+										   </select>	              	             
+	              </td>	
+	              <td class="text-center actions"><button type="button" @click="incluirRemoverCentroCarga(cg.id)" class="btn btn-danger btn-xs remover_campo" title="Excluir"> <span class="glyphicon glyphicon-remove"></span> </button></td>
+	            </tr>	          	          	            
+	          </tbody>
+	        </table>
+	        <hr />
+	      </div>
+	    </div>
+	</div><!-- /.modal-body -->
+	<div class="modal-footer">
+		<span class="text-center">
+			<button type="submit" class="btn btn-default">Salvar</button>
+		</span>
+	</div><!-- /.modal-footer -->
+</form>

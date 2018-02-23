@@ -1,0 +1,61 @@
+<html >
+    <head>
+        <title>Lista</title>
+        <meta charset="utf-8">
+        <script type="text/javascript" src="js/vue.js"></script>
+		<script type="text/javascript" src="js/v-money.js"></script>
+        <script type="text/javascript" src="js/jquery.js"></script>
+		<script type="text/javascript" src="js/bootstrap.js"></script>
+		<script type="text/javascript" src="js/sweetalert2.js"></script>
+		<link rel="stylesheet" href="css/font-awesome-4.7.0/css/font-awesome.css"><!--Para so icones-->
+		<link rel="stylesheet" href="css/bootstrap.css">
+		<link rel="stylesheet" href="css/sweetalert2.css">
+		<link rel="stylesheet" href="css/principal.css">
+    </head> 
+    <body>
+        <div class="container" id="app">
+				<div class="row">
+					<div class="col-md-7">
+						<div class="form-group">
+							<h6 class="text-uppercase"><strong>Lista com somatório de valores</strong></h6>
+						</div>
+					</div>
+					<!-- <hr> -->
+					<div class="col-md-9">
+						<table id="tblLista" class="table">
+						<thead>
+							<tr>
+							<th class="col-md-2 text-center">Listagem</th>
+							<th class="col-md-1">&nbsp;</th>
+							<th class="col-md-2">
+								<a class="pull-right">
+									<button type="button" v-on:click="incluirLinha" class="fa fa-plus btn btn-primary btn-sm"  title="Adicionar item"></button>
+								</a>
+							</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="(l, index) in linhas" v-bind:key="l.id">
+							<td class="text-center"> 
+								<input type="text" v-model="l.item" class="form-control" id="item" placeholder="Digite o item a ser comprado"/>	              	             
+							</td>
+							<td>
+								<money type="text" v-model="l.valor" v-bind="real" class="form-control" id="valor"></money>
+							</td>
+							<td class="text-center actions"><button type="button" v-bind:disabled="linhas.length === 1" v-on:click="removerLinha(l.id)" class="fa fa-trash btn btn-danger btn-sm" title="Deletar item"> <span></span> </button></td>
+							</tr>	          	          	            
+						</tbody>
+						</table>
+						<hr />
+					</div>
+				</div>
+				<div align="center" class="col-md-9">
+						<label>Total: </label>
+						<money type="text" v-bind:value="total" v-bind="real" id="total" disabled></money>
+						<button type="button"  v-on:click="limparLista" class="fa fa-eraser btn btn-warning btn-sm"  title="Limpar lista"></button>
+						<button type="button" class="fa fa-save btn btn-info btn-sm"  title="Salvar lista"></button>
+				</div>
+        </div>
+        <script type="text/javascript" src="js/principal.js"></script>
+    </body>
+</html>

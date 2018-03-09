@@ -1,13 +1,14 @@
 <html >
     <head>
         <title>Lista</title>
-        <meta charset="utf-8">
+		<meta charset="utf-8">
         <script type="text/javascript" src="js/vue.js"></script>
 		<script type="text/javascript" src="js/v-money.js"></script>
         <script type="text/javascript" src="js/jquery.js"></script>
 		<script type="text/javascript" src="js/bootstrap.js"></script>
 		<script type="text/javascript" src="js/sweetalert2.js"></script>
-		<link rel="stylesheet" href="css/font-awesome-4.7.0/css/font-awesome.css"><!--Para so icones-->
+		<script type="text/javascript" src="js/nedb.js"></script><!--Para o BD-->
+		<link rel="stylesheet" href="css/font-awesome-4.7.0/css/font-awesome.css"><!--Para os icones-->
 		<link rel="stylesheet" href="css/bootstrap.css">
 		<link rel="stylesheet" href="css/sweetalert2.css">
 		<link rel="stylesheet" href="css/principal.css">
@@ -53,7 +54,7 @@
 						<label>Total: </label>
 						<money type="text" v-bind:value="total" v-bind="real" id="total" disabled></money>
 						<button type="button"  v-on:click="limparLista" class="fa fa-eraser btn btn-warning btn-sm"  title="Limpar lista"></button>
-						<button type="button" class="fa fa-save btn btn-info btn-sm"  title="Salvar lista"></button>
+						<button type="button" v-on:click="salvar" class="fa fa-save btn btn-info btn-sm"  title="Salvar lista"></button>
 				</div>
         </div>
         <script type="text/javascript" src="js/principal.js"></script>

@@ -43,7 +43,7 @@
 							<td>
 								<money type="text" v-model="l.valor" v-bind="real" class="form-control" id="valor"></money>
 							</td>
-							<td class="text-center actions"><button type="button" v-bind:disabled="linhas.length === 1" v-on:click="removerLinha(l.id)" class="fa fa-trash btn btn-danger btn-sm" title="Deletar item"> <span></span> </button></td>
+							<td class="text-center actions"><button type="button" v-bind:disabled="linhas[0].item == ''" v-on:click="removerLinha(l.id)" class="fa fa-trash btn btn-danger btn-sm" title="Deletar item"> <span></span> </button></td>
 							</tr>	          	          	            
 						</tbody>
 						</table>

@@ -13,14 +13,14 @@ Utiliza:
 Execute o arquivo principal.html na raiz do projeto e pronto!
 
 # Funcionalidades
-- [Esconde/Mostra o gráfico]
-- [Salva  dados para o gráfico e histórico]
-- [Limpa o gráfico]
-- [Visualiza o histórico]
-- [Limpa a listagem]
-- [Salva a listagem]
-- [Insere uma linha na listagem]
-- [Exclui uma linha da listagem]
+- Esconde/Mostra o gráfico
+- Salva  dados para o gráfico e histórico
+- Limpa o gráfico
+- Visualiza o histórico
+- Limpa a listagem
+- Salva a listagem
+- Insere uma linha na listagem
+- Exclui uma linha da listagem
 
 
 

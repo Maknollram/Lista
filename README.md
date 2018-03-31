@@ -25,6 +25,6 @@ Execute o arquivo principal.html na raiz do projeto e pronto!
 
 
 # Imagens de algumas telas
-[IMG]http://i63.tinypic.com/oa553c.jpg[/IMG]
-[IMG]http://i67.tinypic.com/mvn5a0.jpg[/IMG]
-[IMG]http://i65.tinypic.com/5m0276.jpg[/IMG]
+http://i63.tinypic.com/oa553c.jpg<br>
+http://i67.tinypic.com/mvn5a0.jpg<br>
+http://i65.tinypic.com/5m0276.jpg

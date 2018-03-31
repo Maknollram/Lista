@@ -8,54 +8,187 @@
 		<script type="text/javascript" src="js/bootstrap.js"></script>
 		<script type="text/javascript" src="js/sweetalert2.js"></script>
 		<script type="text/javascript" src="js/nedb.js"></script><!--Para o BD-->
+		<script type="text/javascript" src="js/chart.js"></script><!--Para o grafico-->
+		<script type="text/javascript" src="js/vue-charts.js"></script><!--Para o grafico-->
 		<link rel="stylesheet" href="css/font-awesome-4.7.0/css/font-awesome.css"><!--Para os icones-->
 		<link rel="stylesheet" href="css/bootstrap.css">
 		<link rel="stylesheet" href="css/sweetalert2.css">
 		<link rel="stylesheet" href="css/principal.css">
+		<link rel="shortcut icon" href="img/contas.png">
     </head> 
     <body>
         <div class="container" id="app">
-				<div class="row">
-					<div class="col-md-7">
-						<div class="form-group">
-							<h6 class="text-uppercase"><strong>Lista com somatório de valores</strong></h6>
+			<!-- Modal Historico-->
+			<div class="modal fade" id="modal">
+				<div class="modal-dialog">
+					<div class="modal-content">
+						<!-- Modal Add Header -->
+						<div class="modal-header">
+							<button type="button" class="close" data-dismiss="modal">&times;</button>
+							<h4 align="left" class="modal-title">Histórico de Gasto Mensais</h4>
+						</div>
+						<!-- Modal Add body -->
+						<div class="modal-body">
+							<div class="row" align="center">
+								<h4>{{dataHist}}</h4>
+							</div>
+							<div class="row" v-for="(d, index) in dadosHist" v-bind:key="d.dados.id">
+								<div class="col-md-9">
+									<input type="text" v-model="d.dados.item" class="form-control" id="item" placeholder="Item" disabled/>
+								</div>
+								<div class="col-md-3">
+									<money type="text" v-model="d.dados.valor" v-bind="real" class="form-control" id="valor" placeholder="Item" disabled></money>
+								</div>
+								<br>
+							</div>
+							<br>
+							<div class="row" align="center">
+								<label class="col-md-2" id="label">Limite: </label>	
+								<money type="text" v-model="limiteHist" v-bind="real" class="col-md-3 total" id="limiteHist" placeholder="Limite" disabled></money>
+								<label class="col-md-3" id="label">Total: </label>	
+								<money type="text" v-model="totalHist" v-bind="real" class="col-md-3 total" id="totalHist" placeholder="Total" disabled></money>
+							</div>
+						</div>
+						<!-- Modal Add footer -->
+						<div class="modal-footer">
+							<div align="center">
+								<nav aria-label="Page navigation example">
+									<ul class="pagination">
+									<li class="page-item">
+										<a href="#" v-on:click="primeiraPagina" class="page-link" aria-label="Primeira">
+											<span aria-hidden="true">&laquo;</span>
+											<span class="sr-only">Primeira</span>
+										</a>
+									</li>
+									<li class="page-item">
+										<a href="#" v-on:click="paginaAnterior" class="page-link" aria-label="Anterior">
+										<span aria-hidden="true">&lsaquo;</span>
+										<span class="sr-only">Anterior</span>
+										</a>
+									</li>
+									<li class="page-item" v-on:click="setaPagina(item)" v-for="item in totalPaginas" v-bind:class="[item == paginaAtual ? 'active' : '']">
+										<a href="#" class="page-link">{{item}}</a>
+									</li>
+									<li class="page-item">
+										<a href="#" v-on:click="proximaPagina" class="page-link" aria-label="Proximo">
+										<span aria-hidden="true">&rsaquo;</span>
+										<span class="sr-only">Próximo</span>
+										</a>
+									</li>
+									<li class="page-item">
+										<a href="#" v-on:click="ultimaPagina" class="page-link" aria-label="Ultima">
+											<span aria-hidden="true">&raquo;</span>
+											<span class="sr-only">Última</span>
+										</a>
+									</li>
+									</ul>
+								</nav>
+							</div>
 						</div>
 					</div>
-					<!-- <hr> -->
-					<div class="col-md-9">
-						<table id="tblLista" class="table">
-						<thead>
-							<tr>
-							<th class="col-md-2 text-center">Listagem</th>
-							<th class="col-md-1">&nbsp;</th>
-							<th class="col-md-2">
-								<a class="pull-right">
-									<button type="button" v-on:click="incluirLinha" class="fa fa-plus btn btn-primary btn-sm"  title="Adicionar item"></button>
-								</a>
-							</th>
-							</tr>
-						</thead>
-						<tbody>
-							<tr v-for="(l, index) in linhas" v-bind:key="l.id">
-							<td class="text-center"> 
-								<input type="text" v-model="l.item" class="form-control" id="item" placeholder="Digite o item a ser comprado"/>	              	             
-							</td>
-							<td>
-								<money type="text" v-model="l.valor" v-bind="real" class="form-control" id="valor"></money>
-							</td>
-							<td class="text-center actions"><button type="button" v-bind:disabled="linhas[0].item == ''" v-on:click="removerLinha(l.id)" class="fa fa-trash btn btn-danger btn-sm" title="Deletar item"> <span></span> </button></td>
-							</tr>	          	          	            
-						</tbody>
-						</table>
-						<hr />
+				</div>
+			</div>
+			<!-- Modal Historico End-->			
+			<div class="navbar-fixed-top" style="background-color: white">
+				<div class="container">
+					<div class="row">
+						<div class="row">
+							<div class="col-md-9">
+								<div class="progress" style="height: 32px;">								
+									<div class="progress-bar progress-bar-success" role="progressbar" v-bind:style="(porcentagem <= 70)?'width:' + porcentagem + '%':{}"></div>
+									<div class="progress-bar progress-bar-warning" role="progressbar" v-bind:style="(porcentagem > 70 && porcentagem <= 90)?'width:' + porcentagem + '%':{}"></div>
+									<div class="progress-bar progress-bar-danger" role="progressbar" v-bind:style="(porcentagem > 90)?'width:' + porcentagem + '%':{}"></div>
+								</div>
+							</div>
+							<div class="col-md-1" id="label">
+								<label>Limite: </label>
+							</div>
+							<div class="col-md-2">
+								<money v-model="limite" v-bind="real" class="form-control" id="limite"></money>
+							</div>
+						</div>
+						<div class="row" align="center">
+							<label>Total: </label>
+							<money class="total" v-bind:value="total" v-bind="real" disabled></money>
+							&nbsp;<span class="linha-vertical"></span>&nbsp;
+							<button type="button" v-on:click="mostraGrafico" v-bind:class="toggle == 'M'?'fa fa-toggle-on btn btn-info btn-sm':'fa fa-toggle-off btn btn-default btn-sm'"  title="Mostrar/Esconder Gráfico"></button>
+							<button type="button" v-on:click="grafico" class="fa fa-line-chart btn btn-primary btn-sm" v-bind:disabled="(toggle == 'E')" title="Salvar Gráfico"></button>
+							<button type="button" v-on:click="limparGrafico" class="fa fa-line-chart btn btn-danger btn-sm" v-bind:disabled="(disableGraf == 0 || toggle == 'E')" title="Limpar Gráfico"></button>
+							&nbsp;<span class="linha-vertical"></span>&nbsp;
+							<button type="button" v-on:click="mostrarHistorico" class="fa fa-history btn btn-warning btn-sm" v-bind:disabled="(disableGraf == 0 || mostraHist == 0)" title="Visualizar Histórico"></button>
+							&nbsp;<span class="linha-vertical"></span>&nbsp;
+							<button type="button" v-on:click="limparLista" class="fa fa-eraser btn btn-danger btn-sm"  title="Limpar Lista"></button>
+							<button type="button" v-on:click="salvar" class="fa fa-save btn btn-primary btn-sm"  title="Salvar Lista"></button>
+						</div>
+					</div>
+					<div class="row">
+						<div v-show="porcentagem == 100">
+							<div class="col-md-6 col-md-offset-3">
+								<div class="alert alert-danger text-center" style="width:100%">
+									Limite estourado!
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
-				<div align="center" class="col-md-9">
-						<label>Total: </label>
-						<money type="text" v-bind:value="total" v-bind="real" id="total" disabled></money>
-						<button type="button"  v-on:click="limparLista" class="fa fa-eraser btn btn-warning btn-sm"  title="Limpar lista"></button>
-						<button type="button" v-on:click="salvar" class="fa fa-save btn btn-info btn-sm"  title="Salvar lista"></button>
+			</div>
+			<div class="row">
+				<br>
+				<br>
+				<br>
+				<br>
+				<br>
+				<br>
+				<br>
+				<br>
+				<div class="col-md-12">
+					<table id="tblLista" class="table">
+					<thead>
+						<tr>
+						<th class="col-md-2 text-center">Listagem</th>
+						<th class="col-md-1">&nbsp;</th>
+						<th class="col-md-2">
+							<a class="pull-right">
+								<button type="button" v-on:click="incluirLinha" class="fa fa-plus btn btn-primary btn-sm"  title="Adicionar item"></button>
+							</a>
+						</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr v-for="(l, index) in linhas" v-bind:key="l.id">
+						<td class="col-md-6"> 
+							<input type="text" v-model="l.item" class="form-control" id="item" placeholder="Digite o item"/>	              	             
+						</td>
+						<td class="col-md-2">
+							<money type="text" v-model="l.valor" v-bind="real" class="form-control" id="valor"></money>
+						</td>
+						<td class="col-md-1 text-center actions"><button type="button" v-bind:disabled="linhas[0].item == '' && linhas.length == 1" v-on:click="removerLinha(l.id)" class="fa fa-trash btn btn-danger btn-sm" title="Deletar item"> <span></span> </button></td>
+						</tr>	          	          	            
+					</tbody>
+					</table>
 				</div>
+			</div>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+			<br>
+            <br>
+            <br>
+			<br>
+			<div v-show="toggle == 'M'" class="navbar-fixed-bottom" style="background-color: white">
+				<div class="container caixa">
+					<div class="col-md-12">
+						<chartjs-line :beginzero="true" :labels="meses" :datasets="datasets" :option="options" :width="500" :height="120" :bind="true"></chartjs-line>
+					</div>
+				</div>		
+				<br>
+			</div>
         </div>
         <script type="text/javascript" src="js/principal.js"></script>
     </body>

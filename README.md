@@ -6,7 +6,7 @@ Utiliza:
 - [Bootstrap 3.3.7](https://getbootstrap.com/docs/3.3/components/)  
 - [Sweet alert 2](https://sweetalert2.github.io/)
 - [v-money](https://github.com/vuejs-tips/v-money) 
-- [v-mask] (https://github.com/vuejs-tips/vue-the-mask)
+- [v-mask](https://github.com/vuejs-tips/vue-the-mask)
 - [Font awesome 4.7.0](https://fontawesome.com/)
 - [Nedb browser version](https://github.com/louischatriot/nedb)
 

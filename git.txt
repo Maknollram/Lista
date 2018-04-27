@@ -1,0 +1,13 @@
+Criar projeto no github
+na pasta do projeto abra o terminal
+echo "# tituloDaDocumentacao" >> README.md
+git init
+git add .
+git commit -m "comentario no versionamento"
+git remote add origin https://github.com/usuario/nomeDoRepositorio.git
+git push -u origin master
+
+
+-Mudar proxy
+git config --global http.proxy http://proxyUsername:proxyPassword@proxy.server.com:port
+git config --global https.proxy http://proxyUsername:proxyPassword@proxy.server.com:port

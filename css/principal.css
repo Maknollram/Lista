@@ -1,2 +1,57 @@
 .swal2-confirm {margin-right:50px;}
 .swal2-cancel {margin-left:50px;}
+
+.alert {
+	heigth: 40px;
+	width:30%;
+	font-size: 20px;
+ }
+
+ .linha-vertical {
+	height: 5px;
+	border-left: 2px solid;/* Adiciona borda esquerda na div como ser fosse uma linha.*/
+	color: #BDBDBD;
+  }
+
+.caixa {
+	-webkit-box-shadow: 0px 0px 10px #999 inset;
+	-moz-box-shadow: 0px 0px 10px #999 inset; 
+	box-shadow: 0px 0px 10px #999 inset;
+	
+	-moz-border-radius:7px;
+	-webkit-border-radius:7px;
+ 	border-radius:7px;
+}
+
+.total {
+	height: 30px;
+	padding-left: 12px;
+	border: 1px solid #d9d9d9;
+	background-color: #e6e6e6;
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+ 	border-radius:4px;
+}
+
+.centralizar{
+	text-align: center;
+}
+
+.sobre {
+	padding-left: 10px;
+}
+
+#label {
+	padding-top: 5px;
+	vertical-align: middle;
+	text-align: right;
+ }
+
+ #qtd{
+	 width: 50px;
+ }
+
+ #escondido{
+	border: 1px solid #ffffff;
+	background-color: #ffffff;
+ }

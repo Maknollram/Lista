@@ -8,9 +8,9 @@ Vue.use(VueCharts)
 const app = new Vue({
     el: "#app",
     data: { 
-        item: "",
-        valor: "",
-        linhas: [],
+        item: '',
+        valor: '',
+        linhas: [{id: 1, item:"", valor: 0}],
         real:{
             decimal: ',',
             thousands: '.',
@@ -99,7 +99,7 @@ const app = new Vue({
                     ticks:{
                         // Inclui um prefixo nos ticks do lado esquerdo
                         callback: function(value, index, values) {
-                            return 'R$ ' + value.toLocaleString('pt-BR');
+                            return 'R$ ' + Math.trunc(value);
                         },
                         //Mesmo estilo usado no css
                         // fontStyle: 'bold',
@@ -123,10 +123,12 @@ const app = new Vue({
         limiteHist: '',
         totalHist: '',
         dataHist: '',
-        dadosHist: []
+        dtHist: '',
+        dadosHist: [],
+        pesquisa: '',
+        msgHist: "Nenhum registro encontrado nesta data."
     },
     mounted(){
-        this.linhas = [{id: 1, item:"", valor: 0}]
         this.getDados()
         this.atualizaGraf()
         this.atualizaHist(this.paginaAtual)
@@ -135,6 +137,13 @@ const app = new Vue({
         graf: function(){
             this.zeraAtu()
             this.atualizaGraf()
+        },
+        pesquisa: function(){
+            if (this.pesquisa.length <7 && this.mostraHist.length == 0){
+                this.atualizaHist()
+                this.paginaAtual = 1
+                this.getDadosHist(this.paginaAtual)
+			}
         }
     },
     computed:{
@@ -149,11 +158,34 @@ const app = new Vue({
             return porctg
        },
        totalPaginas: function(){
-        let paginas = this.mostraHist.length
-        return paginas
-    },
+            let paginas = this.mostraHist.length
+            return paginas
+        },
+        qtd(){
+            if(this.linhas[0].item == ""){
+                return 0
+            }
+            return this.linhas.length
+        }
     },
     methods:{
+        verificacao(){
+            this.validaDt()
+            this.pesquisar()
+        },
+        pesquisar(){
+            let data = this.pesquisa.split("/")
+            if (this.pesquisa.length == 7){
+                    this.mostraHist =  this.mostraHist.filter(m =>{
+                        if((m.data.getMonth() == data[0]-1) && m.data.getFullYear() == data[1]){
+                            return true
+                        }
+                        return false
+                    })
+                    this.paginaAtual = 1
+                    this.getDadosHist(this.paginaAtual)
+            }
+        },
         atualizaGraf(){
             bd3.find({}, function(err, docs){
                 app.erroBD(err)
@@ -195,8 +227,28 @@ const app = new Vue({
                 app.erroBD(err)
             })
         },
+        insereGraf(data, limite, total){
+            this.graf = []
+            this.graf.push({data: data, limite: limite.toFixed(2), total: total.toFixed(2)})
+            bd3.insert(this.graf, function (err, doc){
+                app.erroBD(err)
+            })
+        },
+        grafHist(){
+            let confirmacao = true
+            this.insereGraf(this.dtHist, this.limiteHist, this.totalHist)
+            if(confirmacao){
+                swal({
+                    position: 'center',
+                    type: 'success',
+                    title: 'Gráfico salvo com sucesso!',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+            }
+        },
         grafico(){
-            var confirmacao = true
+            let confirmacao = true
             if (this.limite == 0 || this.total == 0){
                 swal({
                     position: 'center',
@@ -217,25 +269,12 @@ const app = new Vue({
                 })
                 return
             }
-            this.graf = []
-            this.graf.push({data: new Date(), limite: this.limite.toFixed(2), total: this.total.toFixed(2)})
-            bd3.insert(this.graf, function (err, doc){
-                app.erroBD(err)
-                app.historico()
-            })
+            this.insereGraf(new Date(), this.limite, this.total)
             if(confirmacao){
                 swal({
                     position: 'center',
                     type: 'success',
                     title: 'Gráfico salvo com sucesso!',
-                    showConfirmButton: false,
-                    timer: 1500
-                })
-            }else{
-                swal({
-                    position: 'center',
-                    type: 'error',
-                    title: 'Ocorreu um erro, o gráfico não foi salvo!',
                     showConfirmButton: false,
                     timer: 1500
                 })
@@ -268,16 +307,30 @@ const app = new Vue({
             })
         },
         historico(){
-            this.hist.push({data: new Date()})
-            this.hist.push({limite: this.limite})
-            this.hist.push({total: this.total})
-            this.linhas.forEach((item, index, arr) => {
-                this.hist.push({dados: arr[index]})
+            let confirmacao = true
+            this.hist = []
+            this.hist.push({
+                data: new Date(),
+                limite: this.limite,
+                total: this.total,
+                dados: []
             })
-            bd5.insert({historico: app.hist}, function (err, doc){
+            this.linhas.forEach((item, index, arr) => {
+                this.hist[this.hist.length-1].dados.push(arr[index])
+            })
+            bd5.insert(this.hist, function (err, doc){
                 app.erroBD(err)
                 app.atualizaHist()
             })
+            if(confirmacao){
+                swal({
+                    position: 'center',
+                    type: 'success',
+                    title: 'Gráfico salvo com sucesso!',
+                    showConfirmButton: false,
+                    timer: 1500
+                })
+            }
         },
         atualizaHist(){
             bd5.find({}, function(err, docs){
@@ -290,25 +343,33 @@ const app = new Vue({
             })
         },
         getDadosHist(pagina){
-            this.dataHist = []
-            this.limiteHist = []
-            this.totalHist = []
-            this.dadosHist =  []
-            this.dataHist = this.mostraHist[pagina-1].historico[0].data
-            console.log(this.dataHist)
-            // this.dataHist = ("00"+this.dataHist.getDate()).slice(-2)+"/"+("00"+(this.dataHist.getMonth()+1)).slice(-2)+"/"+this.dataHist.getFullYear()
-            this.dataHist = this.mesCompleto[this.dataHist.getMonth()]+" de "+this.dataHist.getFullYear()
-            this.limiteHist = this.mostraHist[pagina-1].historico[1].limite
-            this.totalHist = this.mostraHist[pagina-1].historico[2].total
-            this.dadosHist = this.mostraHist[pagina-1].historico
-            this.dadosHist.shift()
-            this.dadosHist.shift()
-            this.dadosHist.shift()
+            if (this.mostraHist.length > 0){
+                this.dtHist = this.mostraHist[pagina-1].data
+                this.dataHist = this.mostraHist[pagina-1].data
+                this.dataHist = this.mesCompleto[this.dataHist.getMonth()]+" de "+this.dataHist.getFullYear()
+                this.limiteHist = this.mostraHist[pagina-1].limite
+                this.totalHist = this.mostraHist[pagina-1].total
+                this.dadosHist = this.mostraHist[pagina-1].dados
+            }
         },
         mostrarHistorico(){
             this.atualizaHist()
             this.getDadosHist(this.paginaAtual)
             $("#modal").modal("show")
+        },
+        limparHistorico(){
+            bd5.remove({}, { multi: true }, function (err, numRemoved) {
+                app.erroBD(err)
+                app.mostraHist = []
+            })
+        },
+        salvarLista(){
+            this.salvar()
+        },
+        salvarTudo(){
+            this.salvar()
+            this.grafico()
+            this.historico()
         },
         salvar(){
             if (this.porcentagem == 100){
@@ -322,7 +383,7 @@ const app = new Vue({
                 return
             }
             if (this.linhas[0].item != "" && this.linhas[0].valor != 0){
-                var confirmacao = true
+                let confirmacao = true
                 if (this.novaLista.length != 0){
                     let arr1 = this.linhas.filter(this.comparaArrayDiff(this.novaLista))
                     let arr2 = this.novaLista.filter(this.comparaArrayDiff(this.linhas))
@@ -355,14 +416,6 @@ const app = new Vue({
                         position: 'center',
                         type: 'success',
                         title: 'Lista salva com sucesso!',
-                        showConfirmButton: false,
-                        timer: 1500
-                    })
-                }else{
-                    swal({
-                        position: 'center',
-                        type: 'error',
-                        title: 'Ocorreu um erro, a lista não foi salva!',
                         showConfirmButton: false,
                         timer: 1500
                     })
@@ -449,6 +502,45 @@ const app = new Vue({
             })
             this.getDados()
         },
+        validaDt(){
+			if (this.pesquisa.length===7){
+				let m = parseInt(this.pesquisa.split("/")[0].toString())
+				let a = parseInt(this.pesquisa.split("/")[1].toString())
+				if(a == 0 || a < 100){
+					swal({
+					  position: 'center',
+					  //type: 'warning',
+					  title: 'Ano incorreto!',
+					  imageUrl: 'img/warning.jpg',
+					  imageWidth: 100,
+					  imageHeight: 100,
+					  imageAlt: 'Custom image',
+					  //animation: false,
+					  showConfirmButton: false,
+					  timer: 1500
+					});
+					this.pesquisa = ""
+					return false;
+				}
+				if(m > 12 || m < 1){
+					swal({
+					  position: 'center',
+					  //type: 'warning',
+					  title: 'O mês não pode ser menor que 1 ou maior que 12!',
+					  imageUrl: 'img/warning.jpg',
+					  imageWidth: 100,
+					  imageHeight: 100,
+					  imageAlt: 'Custom image',
+					  //animation: false,
+					  showConfirmButton: false,
+					  timer: 3500
+					});
+					this.pesquisa = ""
+					return false;
+				}
+			}
+			return true;
+		},
         limparLista(){
             swal({
 	            title: 'Tem certeza que deseja limpar a lista?',
@@ -471,7 +563,9 @@ const app = new Vue({
                     app.linhas = []
                 })
                 bd2.remove({}, { multi: true }, function (err, numRemoved) {
-                    app.erroBD(err)
+                    if(app.erroBD(err)){
+                        return
+                    }
                     app.limites = []
                     app.limite = 0
                 })
@@ -486,12 +580,15 @@ const app = new Vue({
                     showConfirmButton: false,
                     timer: 1500
                 })
-                return console.log(err)
+                return true
             }
+            return false
         },
         setaPagina(pagina){
             this.paginaAtual = pagina
-            this.atualizaHist()
+            if(this.pesquisa.length < 7){
+                this.atualizaHist()
+            }
             this.getDadosHist(this.paginaAtual)
     	},
     	primeiraPagina(){
@@ -502,19 +599,24 @@ const app = new Vue({
 			this.paginaAtual -= 1
 			if(this.paginaAtual < 1){
 				this.primeiraPagina()
-			}
-			this.setaPagina(this.paginaAtual)
+			}else{
+                this.setaPagina(this.paginaAtual)
+            }
 		},
 		proximaPagina(){
 			this.paginaAtual += 1
 			if (this.paginaAtual > this.totalPaginas){
 				this.ultimaPagina()
-			}
-			this.setaPagina(this.paginaAtual)
+			}else{
+                this.setaPagina(this.paginaAtual)
+            }
 		},
     	ultimaPagina(){
 			this.paginaAtual = this.totalPaginas
 			this.setaPagina(this.paginaAtual)
-		}
+        },
+        sobre(){
+            $("#sobre").modal("show")
+        },
     }
 })
